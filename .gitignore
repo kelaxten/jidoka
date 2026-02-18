@@ -1,0 +1,17 @@
+# Assembly Line runtime (created by `init`, not committed)
+.assembly-line/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

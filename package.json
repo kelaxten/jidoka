@@ -1,0 +1,27 @@
+{
+  "name": "assembly-line",
+  "version": "0.2.0",
+  "description": "An industrial engineering approach to agentic software development",
+  "main": "controller/assembly-line.js",
+  "bin": {
+    "assembly-line": "controller/assembly-line.js"
+  },
+  "scripts": {
+    "init": "node controller/assembly-line.js init",
+    "status": "node controller/assembly-line.js status",
+    "metrics": "node controller/assembly-line.js metrics"
+  },
+  "keywords": [
+    "claude-code",
+    "agentic",
+    "software-development",
+    "assembly-line",
+    "manufacturing",
+    "kanban",
+    "multi-agent"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
