@@ -15,7 +15,7 @@
 
 In January 2026, Steve Yegge launched Gastown and the discourse splintered. Half the industry called it insane. The other half called it inevitable. Both were right.
 
-Gastown proved something important: you can point twenty Claude Code instances at a codebase and useful work comes out. Not reliable work. Not predictable work. Not work you'd bet your production database on. But work. The factory metaphor was no longer theoretical.
+Gastown proved something important: you can point twenty Claude Code instances at a codebase and useful work comes out. Not yet reliable work, not yet predictable work, but real, demonstrable work. The factory metaphor was no longer theoretical.
 
 The problem is that Yegge built a frontier town, not a factory. He built a place where a brilliant, experienced developer can wrangle a swarm of autonomous agents through force of will and improvisational skill. It requires what he calls a "Stage 7-8 developer" — someone who has already internalized decades of software craft and can pattern-match at the speed the agents produce code.
 
@@ -45,21 +45,21 @@ Now we stand at the next transition. AI agents can write code. Multiple agents c
 
 ---
 
-## 02 — The Gastown Critique
+## 02 — Gastown: Contributions and Gaps
 
 Gastown deserves credit. It is the first serious attempt at multi-agent orchestration for software development that actually ships working software. It introduced the Mayor pattern (a coordinator agent), persistent state through Beads, and the concept of agent colonies. These are real contributions.
 
-But Gastown has five structural problems that an industrial engineering lens immediately exposes.
+But an industrial engineering lens exposes five structural gaps.
 
-First: no standard work. Gastown's agents operate with broad role definitions — Polecat, Crew, Mayor — but lack standardized procedures for each task type. In manufacturing, every station has a work instruction sheet that specifies exactly what the worker does, step by step, for each type of input. Gastown has vibes.
+First: no standard work. Gastown's agents operate with broad role definitions — Polecat, Crew, Mayor — but without standardized procedures for each task type. In manufacturing, every station has a work instruction sheet that specifies exactly what the worker does, step by step, for each type of input. Gastown relies on the human operator's judgment where a factory would rely on written procedure.
 
 Second: no takt time. There is no rhythm to the line. Agents fire asynchronously with no concept of cycle time, throughput targets, or bottleneck identification. Work accumulates unpredictably. Some agents churn while others starve. The system has no way to detect or resolve this imbalance because it has no concept of flow.
 
 Third: quality is an afterthought. Yegge himself describes PRs arriving broken and needing manual repair. This is classic end-of-line inspection — the most expensive form of quality control. Toyota taught us sixty years ago: you build quality into the process at every station. You don't bolt it on at the end.
 
-Fourth: no Andon cord. When a Gastown agent is stuck, confused, or producing garbage, there is no structured escalation mechanism. The human has to notice, diagnose, and intervene — if they're watching. The manufacturing equivalent is a factory with no way for a line worker to signal "I need help." Toyota solved this in the 1960s with a literal cord any worker could pull to stop the line.
+Fourth: no Andon cord. When a Gastown agent is stuck, confused, or off-track, there is no structured escalation mechanism. The human has to notice, diagnose, and intervene — if they're watching. The manufacturing equivalent is a factory with no way for a line worker to signal "I need help." Toyota solved this in the 1960s with a literal cord any worker could pull to stop the line.
 
-Fifth: chaos by design. Gastown embraces what Yegge calls "nondeterministic infrastructure" — the idea that agents may fail, retry, self-correct, and eventually converge. This is philosophically interesting and practically terrifying. Manufacturing embraces statistical process control: you expect variation, but you engineer it within acceptable bounds. Gastown's variation is unbounded. Sometimes you get four working PRs. Sometimes you get a pile of hot trash. There is no system for telling which you'll get in advance.
+Fifth: unbounded variation. Gastown embraces what Yegge calls "nondeterministic infrastructure" — the idea that agents may fail, retry, self-correct, and eventually converge. This is a philosophically honest acknowledgment of how LLMs work, but it lacks the engineering response that manufacturing developed for exactly this challenge. Manufacturing embraces statistical process control: you expect variation, but you engineer it within acceptable bounds. Gastown's variation is unbounded, and the outcome depends heavily on the human's ability to detect and correct problems in real time.
 
 ---
 
@@ -190,7 +190,7 @@ This sounds rigid. It is rigid. Here's why.
 
 When a human developer sees something that could be improved while implementing a feature, they use judgment. They weigh the cost of the detour against the benefit. They consider whether the improvement is worth the added review burden. They make a decision that accounts for context they have accumulated over months or years of working in this codebase.
 
-A Claude instance does not have this judgment. It has a context window and a strong prior toward being helpful. "Being helpful" to a Claude instance means doing more, doing better, making things nicer. This is exactly the instinct that produces the "pile of hot trash" Yegge describes — agents that race ahead, adding features nobody asked for, refactoring code they happened to notice, introducing abstractions "for future use," and burning tokens on improvements that may or may not align with the product direction.
+A Claude instance does not have this judgment. It has a context window and a strong prior toward being helpful. "Being helpful" to a Claude instance means doing more, doing better, making things nicer. This is exactly the instinct that produces the runaway agent behavior Yegge describes — agents that race ahead, adding features nobody asked for, refactoring code they happened to notice, introducing abstractions "for future use," and burning tokens on improvements that may or may not align with the product direction.
 
 The Gold-Plating Rule eliminates this failure mode mechanically. The worker cannot gold-plate because the work instruction explicitly prohibits it. The improvement isn't lost — it's captured as a note that becomes a candidate unit in the backlog. The human decides if and when to build it. The agent builds what was designed, nothing more, nothing less.
 
