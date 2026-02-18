@@ -4,15 +4,15 @@
 
 ---
 
-## The Problem with Gastown
+## Where Gastown Points
 
-Steve Yegge's Gastown proved that multi-agent software development works. But it
-proved it the way the Wright Brothers proved powered flight — by getting airborne
-through sheer will, not through aeronautical engineering. Gastown is a frontier
-town: creative, energetic, nondeterministic, and chaotic. It works for Yegge
-because it fits the shape of his brain.
+Steve Yegge's Gastown proved that multi-agent software development works. It proved
+it the way the Wright Brothers proved powered flight — by getting airborne through
+sheer will, not through aeronautical engineering. Gastown is a frontier town:
+creative, energetic, and nondeterministic. It works well for a highly experienced
+operator who can keep the swarm aligned through skill and real-time correction.
 
-The Assembly Line takes the opposite approach. It borrows from 100 years of
+The Assembly Line takes a complementary approach. It borrows from 100 years of
 manufacturing science to build a *regimented* system where:
 
 - **Claude instances are workers at stations**, not autonomous agents in a swarm
@@ -53,7 +53,7 @@ confidently, escalating" is more valuable than one that guesses.
 
 Work is PULLED by downstream stations when they have capacity, not PUSHED by
 upstream stations when they finish. WIP limits at each station prevent the token-
-burning overload that plagues Gastown.
+burning overload that unconstrained agent swarms tend toward.
 
 ### Poka-Yoke (Error Proofing)
 
@@ -295,12 +295,12 @@ Instrument everything. Review weekly:
 | Dimension | Gastown | Assembly Line |
 |---|---|---|
 | Metaphor | Frontier town with a Mayor | Factory with stations |
-| Human role | Stage 7-8 cowboy | Industrial engineer |
+| Human role | Stage 7-8 operator | Industrial engineer |
 | Agent autonomy | High — agents decide how | Bounded — follow work instructions |
 | Work flow | Nondeterministic swarm | Deterministic pipeline |
 | Quality | End-of-line PR review | Built in at every station |
 | Escalation | Ad hoc | Structured Andon cords |
-| Failure mode | Chaos, token burn | Bottleneck (predictable) |
+| Failure mode | Unpredictable outcomes, token overrun | Bottleneck (predictable) |
 | WIP control | None | Kanban limits per station |
 | Optimization | Gut feel | Takt time + defect rate data |
 | Onboarding | "Baptism by fire" | Read the station manual |
@@ -321,8 +321,8 @@ found downstream becomes a quality gate improvement upstream. The line learns,
 even though the workers are stateless.
 
 This is how manufacturing scaled from artisan workshops to assembly lines that
-produce millions of units. This is how agentic development scales from "cowboy
-coder with 20 Claude Code instances" to a repeatable, measurable, improvable system.
+produce millions of units. This is how agentic development scales from a single expert operator with 20 Claude
+Code instances to a repeatable, measurable, improvable system any team can run.
 
 ---
 
