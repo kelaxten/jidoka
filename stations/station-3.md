@@ -118,6 +118,38 @@ If you think "this would be better if I also..." — STOP. That thought is a new
 Write it in `station_3.notes` as a suggestion and move on. Your job is to build
 what was designed, not to redesign it.
 
+### Incidental Fix Protocol
+
+The Gold-Plating Rule prohibits **scope creep** — adding features, refactoring,
+or "improving" code beyond the plan. But it does NOT prohibit fixing **bugs you
+discover during implementation.** Jidoka says: stop and fix, don't pass defects
+downstream.
+
+When you discover a bug in existing code while implementing:
+
+**If ALL of these are true — fix it:**
+1. The fix is under 20 lines of changed code
+2. The fix does NOT change any public interface, function signature, or API contract
+3. The fix is for a genuine bug (incorrect behavior), NOT a style preference or improvement
+4. The fix is in code you are already reading/modifying as part of the plan
+
+**How to fix it:**
+- Make the fix in a **separate commit** with message: `{UNIT-ID}: Incidental fix — {brief description}`
+- Document the fix in `station_3.notes`: what the bug was, what you changed, why it qualifies as incidental
+- Continue with the plan as normal
+
+**If ANY of these are true — pull the Andon cord instead:**
+- The fix is 20+ lines
+- The fix changes a public interface or function signature
+- The fix requires modifying files not in the plan
+- You aren't sure if it's a bug or a design choice
+- The bug is serious enough that it might exist in production and need its own tracking
+
+This protocol exists because the original Gold-Plating Rule, taken literally, asks
+you to knowingly pass defects downstream. That violates jidoka. The Incidental Fix
+Protocol preserves scope discipline while honoring the deeper principle: build
+quality in at every station.
+
 ## Parallel Operation
 
 Station 3 supports multiple workers (WIP limit: 3). Each worker:

@@ -24,8 +24,10 @@ cp -r .assembly-line-src/stations .assembly-line-src/controller .assembly-line-s
 # Initialize
 node controller/assembly-line.js init
 
-# Add work
+# Add work (choose a route: standard, fast, or spike)
 node controller/assembly-line.js add "Add user authentication" --priority high
+node controller/assembly-line.js add "Fix null check in login" --route fast
+node controller/assembly-line.js add "Explore caching strategies" --route spike
 node controller/assembly-line.js start UNIT-001
 
 # Spawn a Claude Code worker (headless)
@@ -49,7 +51,13 @@ node controller/assembly-line.js metrics
 
 ## How It Works
 
-Work flows through six stations. Each station is a Claude Code instance following a [work instruction](stations/):
+Work flows through stations along a **route**. Each station is a Claude Code instance following a [work instruction](stations/):
+
+| Route | Stations | Use For |
+|-------|----------|---------|
+| `standard` | 1 → 2 → 3 → 4 → 5 → 6 | Features, large changes (default) |
+| `fast` | 1 → 3 → 4 → 5 → 6 | Bug fixes, small changes, config updates (skips Design) |
+| `spike` | 1 → 3 | Exploration and discovery (produces a report, not a merge) |
 
 | Station | Role | WIP Limit | Output |
 |---------|------|-----------|--------|

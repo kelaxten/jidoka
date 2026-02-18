@@ -40,6 +40,11 @@ const CONFIG = {
     5: { name: "Code Review", wipLimit: 2, parallel: false },
     6: { name: "Integration & Merge", wipLimit: 1, parallel: false },
   },
+  routes: {
+    standard: { stations: [1, 2, 3, 4, 5, 6], description: "Full pipeline — features, large changes" },
+    fast:     { stations: [1, 3, 4, 5, 6],    description: "Skip Design — bug fixes, small changes, config" },
+    spike:    { stations: [1, 3],              description: "Explore only — produces a report, not a merge" },
+  },
   targetCycleTimes: { 1: 15, 2: 30, 3: 60, 4: 30, 5: 15, 6: 10 },
   claude: {
     model: process.env.ASSEMBLY_LINE_MODEL || "sonnet",
@@ -395,17 +400,21 @@ const commands = {
 
   add(args, flags) {
     const title = args.join(" ");
-    if (!title) { console.error("Usage: add <title>"); process.exit(1); }
+    if (!title) { console.error("Usage: add <title> [--priority high|medium|low] [--route standard|fast|spike]"); process.exit(1); }
+    const route = flags.route || "standard";
+    if (!CONFIG.routes[route]) { console.error(`Unknown route: ${route}. Valid: ${Object.keys(CONFIG.routes).join(", ")}`); process.exit(1); }
     const id = genId();
+    const mkStation = () => ({ rationale: [] });
     const unit = {
       id, title, status: "backlog", created: ts(),
       priority: flags.priority || "medium",
-      station_1: {}, station_2: {}, station_3: {},
-      station_4: {}, station_5: {}, station_6: {},
+      route,
+      station_1: mkStation(), station_2: mkStation(), station_3: mkStation(),
+      station_4: mkStation(), station_5: mkStation(), station_6: mkStation(),
       history: [{ timestamp: ts(), event: "created" }],
     };
     writeUnit(unit, "backlog");
-    console.log(`✓ ${id}: "${title}" (${unit.priority})`);
+    console.log(`✓ ${id}: "${title}" (${unit.priority}, route: ${route})`);
   },
 
   start(args) {
@@ -427,12 +436,33 @@ const commands = {
     if (!r) { console.error(`${id} not found.`); process.exit(1); }
     const cur = parseInt(r.location.replace("station-", ""), 10);
     if (isNaN(cur)) { console.error(`${id} at ${r.location}.`); process.exit(1); }
-    if (cur === 6) { moveUnit(id, "station-6", "done"); console.log(`✅ ${id} DONE.`); return; }
-    const nxt = cur + 1;
+
+    const route = r.unit.route || "standard";
+    const routeStations = CONFIG.routes[route]?.stations || CONFIG.routes.standard.stations;
+    const curIdx = routeStations.indexOf(cur);
+
+    // Current station is the last in the route — move to done
+    if (curIdx === routeStations.length - 1 || cur === 6) {
+      moveUnit(id, `station-${cur}`, "done");
+      if (route === "spike") {
+        console.log(`✅ ${id} SPIKE COMPLETE. Output is a report, not a merge.`);
+      } else {
+        console.log(`✅ ${id} DONE.`);
+      }
+      // Clean up done signal
+      const doneFile = R("workers", `DONE-${id}-station-${cur}.json`);
+      if (fs.existsSync(doneFile)) fs.unlinkSync(doneFile);
+      return;
+    }
+
+    // Find next station in the route
+    const nxt = routeStations[curIdx + 1];
+    if (!nxt) { console.error(`Cannot determine next station for ${id} (route: ${route}, current: S${cur}).`); process.exit(1); }
     const w = stationWip(nxt);
     if (w >= CONFIG.stations[nxt].wipLimit) { console.error(`Station ${nxt} at WIP limit.`); process.exit(1); }
+    const skipped = nxt - cur > 1 ? ` (skipping S${Array.from({length: nxt - cur - 1}, (_, i) => cur + 1 + i).join(", S")})` : "";
     moveUnit(id, `station-${cur}`, `station-${nxt}`);
-    console.log(`✓ ${id}: S${cur} → S${nxt} (${CONFIG.stations[nxt].name})`);
+    console.log(`✓ ${id}: S${cur} → S${nxt} (${CONFIG.stations[nxt].name})${skipped} [${route}]`);
     // Clean up done signal from previous station
     const doneFile = R("workers", `DONE-${id}-station-${cur}.json`);
     if (fs.existsSync(doneFile)) fs.unlinkSync(doneFile);
@@ -469,7 +499,8 @@ const commands = {
         const wf = R("workers", `WORKER-${u.id}-S${n}.json`);
         let ws = "";
         if (fs.existsSync(wf)) { const wd = JSON.parse(fs.readFileSync(wf, "utf8")); ws = ` 🤖 ${wd.status}`; }
-        console.log(`    → ${u.id}: ${u.title} (${mins}m${takt})${ws}`);
+        const rt = u.route && u.route !== "standard" ? ` [${u.route}]` : "";
+        console.log(`    → ${u.id}: ${u.title} (${mins}m${takt})${ws}${rt}`);
       }
       console.log();
     }
@@ -668,11 +699,16 @@ if (!cmd || !commands[cmd]) {
   ${"═".repeat(50)}
 
   Setup:       init
-  Work:        add <title> | start <id> | advance <id> | reject <id> <stn>
+  Work:        add <title> [--priority high|medium|low] [--route standard|fast|spike]
+               start <id> | advance <id> | reject <id> <stn>
   Workers:     spawn <stn> [id] [--interactive] [--model X] [--quiet]
                spawn-all [--interactive] [--model X]
   Monitor:     status | workers | logs [filter] | metrics
   Escalation:  andon list | andon pull <id> <stn> <msg> | andon resolve <id> <msg>
+
+  Routes:      standard — full 6-station pipeline (features, large changes)
+               fast     — skip Station 2 (bug fixes, small changes)
+               spike    — Stations 1→3 only (exploration, produces report not merge)
 
   Env: ASSEMBLY_LINE_MODEL=${CONFIG.claude.model} ASSEMBLY_LINE_MAX_TURNS=${CONFIG.claude.maxTurns}
   `);

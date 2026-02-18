@@ -505,7 +505,7 @@
 
     <hr>
 
-    <h2>08 &mdash; The Gold-Plating Rule</h2>
+    <h2>08 &mdash; The Gold-Plating Rule (and Its Exception)</h2>
 
     <p>Station 3&rsquo;s work instruction contains what we call the Gold-Plating Rule, and it deserves its own section because it addresses the single most expensive failure mode in agentic development.</p>
 
@@ -519,32 +519,48 @@
 
     <p>The Gold-Plating Rule eliminates this failure mode mechanically. The worker cannot gold-plate because the work instruction explicitly prohibits it. The improvement isn&rsquo;t lost &mdash; it&rsquo;s captured as a note that becomes a candidate unit in the backlog. The human decides if and when to build it. The agent builds what was designed, nothing more, nothing less.</p>
 
+    <p>But here is where we must be honest about an important distinction, one that Toyota&rsquo;s own system makes explicit: <strong>scope creep is not the same as fixing a defect you&rsquo;ve discovered.</strong></p>
+
+    <p>Toyota&rsquo;s jidoka principle says: stop and fix. Do not pass defects downstream. If a Station 3 worker discovers a bug in existing code while implementing a feature &mdash; a real bug, not a style preference &mdash; the original Gold-Plating Rule would say &ldquo;note it and move on.&rdquo; But that violates jidoka. You&rsquo;ve found a defect. Passing it downstream is the thing the whole system is designed to prevent.</p>
+
+    <p>So the Gold-Plating Rule has an exception: the <strong>Incidental Fix Protocol.</strong></p>
+
+    <ul>
+      <li><strong>Scope creep</strong> &mdash; adding features, refactoring code, improving style, introducing abstractions &mdash; is still prohibited. Note it, move on.</li>
+      <li><strong>Incidental fixes</strong> &mdash; correcting a bug you&rsquo;ve discovered during implementation &mdash; are allowed under strict conditions: the fix is small (under 20 lines), it doesn&rsquo;t change the feature&rsquo;s interface, it goes in a separate commit with documentation in <code>station_3.notes</code>, and it gets its own test coverage at Station 4.</li>
+      <li>If the fix is larger or changes interfaces, pull the Andon cord. That&rsquo;s not an incidental fix &mdash; it&rsquo;s a new unit of work.</li>
+    </ul>
+
+    <p>This distinction matters because the original rule, taken literally, asks workers to knowingly pass defects downstream. That&rsquo;s the one thing an assembly line must never do. The Incidental Fix Protocol preserves the spirit of the Gold-Plating Rule &mdash; no scope creep, no agent runaway &mdash; while honoring the deeper principle: build quality in at every station.</p>
+
     <p>This is why the Assembly Line works for developers who are not Yegge-level Stage 7-8 operators. The discipline is in the system, not in the human&rsquo;s ability to detect and correct agent runaway in real time.</p>
 
     <hr>
 
-    <h2>09 &mdash; You Are Not Training the Agents</h2>
+    <h2>09 &mdash; You Are Not Training the Agents (But They Are Not Blank)</h2>
 
     <p>Here is the fundamental insight, the one that makes everything else click:</p>
 
     <p>You are not training the agents. You are engineering the process.</p>
 
-    <p>The Claude instances are stateless. They learn nothing between sessions. They carry no memory of the last unit they processed. They are interchangeable commodity workers. You could swap one for another mid-stream and the line would not notice, because the state is in the work unit, not in the worker.</p>
+    <p>The Claude instances carry no memory between sessions. They don&rsquo;t learn from the last unit they processed. The state is in the work unit, not in the worker. This means your investment in better work instructions, tighter quality gates, and more specific Andon triggers persists &mdash; in versioned files in your repository &mdash; while any investment in making a specific agent session &ldquo;smarter&rdquo; evaporates when it ends.</p>
 
-    <p>This is a feature, not a limitation.</p>
+    <p>This is a feature, not a limitation. Invest in the line, not the worker.</p>
 
-    <p>When you try to make agents smarter &mdash; through elaborate system prompts, through fine-tuning, through multi-turn conversations where you build up context and rapport &mdash; you are investing in the worker. This investment evaporates with every new session. Every token you spend making an agent &ldquo;understand&rdquo; your codebase is a token you will spend again tomorrow.</p>
+    <p>But we should be honest about what the worker actually is. A Claude instance is not a blank executor. It is not a dumb hand that mechanically follows instructions the way a robotic arm follows G-code. It is a highly capable system with strong priors &mdash; about code style, about design patterns, about what &ldquo;good&rdquo; looks like. It arrives at every station with opinions. Sometimes those opinions are excellent. Sometimes they&rsquo;re wrong. The work instruction doesn&rsquo;t program the worker from scratch. It <em>calibrates</em> a system that already has significant capability.</p>
 
-    <p>When you invest in the line instead &mdash; better work instructions, tighter quality gates, more specific Andon triggers, more structured handoffs &mdash; the investment persists. The work instructions are files in your repository. They are versioned. They are reviewed. They improve monotonically over time, because every defect found downstream results in an upstream improvement.</p>
+    <p>This distinction matters for how you write work instructions. A good work instruction doesn&rsquo;t specify every keystroke &mdash; that would be both impossible and wasteful. It leverages the model&rsquo;s strengths (pattern recognition, code generation, API knowledge) while guarding against its weaknesses (over-helpfulness, hallucinated dependencies, style drift, and the relentless urge to &ldquo;improve&rdquo; things that don&rsquo;t need improving). The instruction is a steering mechanism, not a program.</p>
 
-    <p>This is how manufacturing scaled. Ford didn&rsquo;t build better machinists. He built a better line and staffed it with the machinists he had. Toyota didn&rsquo;t hire geniuses for the factory floor. They built a system where ordinary workers could produce extraordinary quality, because the system caught errors that human judgment would miss.</p>
+    <p>The core insight still holds: invest in the process, not the worker. When you try to make agents smarter through elaborate multi-turn conversations where you build up context and rapport, that investment evaporates with every new session. When you invest in the line instead, the improvement compounds. Better work instructions produce better outputs from every worker at every station, forever.</p>
 
-    <p>The Assembly Line does the same for agentic software development. The intelligence is in the line. The workers are replaceable. The human is the engineer.</p>
+    <p>This is how manufacturing scaled. Ford didn&rsquo;t build better machinists. He built a better line and staffed it with the machinists he had. Toyota didn&rsquo;t hire geniuses for the factory floor. They built a system where capable workers could produce extraordinary quality, because the system channeled their capability and caught errors that individual judgment would miss.</p>
+
+    <p>The Assembly Line does the same for agentic software development. The intelligence is in the line. The workers are capable but stateless. The human is the engineer who designs the system that channels that capability into reliable outcomes.</p>
 
     <hr>
 
     <blockquote class="pullquote">
-      <p><strong>You are not training the agents. You are engineering the process. The investment in better work instructions persists. The investment in smarter agents evaporates every session.</strong></p>
+      <p><strong>You are not training the agents. You are calibrating a capable system through better instructions. The investment in the line persists. The investment in any single session evaporates.</strong></p>
     </blockquote>
 
     <hr>
@@ -571,7 +587,33 @@
 
     <hr>
 
-    <h2>11 &mdash; What We Believe</h2>
+    <h2>11 &mdash; Where the Analogy Breaks</h2>
+
+    <p>Every section above borrows from manufacturing. This section says where the borrowing stops &mdash; because the strongest version of this argument is the one that confronts its own limits honestly.</p>
+
+    <p><strong>Software is often discovery, not production.</strong> A factory makes the same part a million times. Software makes each part once. Manufacturing assumes stable requirements &mdash; the blueprint exists before the line runs. In software, requirements frequently emerge from the act of building. You discover what the feature should be by implementing the first version and watching it fail.</p>
+
+    <p>The Assembly Line handles this through two mechanisms. First, <strong>spikes</strong> &mdash; lightweight exploratory loops (Stations 1 &rarr; 3 only) that produce learning, not production code. A spike&rsquo;s output is a report: &ldquo;here is what we learned, here is what the real unit should specify.&rdquo; The spike is cheap because it skips design review, testing, code review, and integration. It never merges. Second, <strong>Andon escalation as a learning signal.</strong> When Station 3 pulls the cord because the plan is infeasible, that isn&rsquo;t a failure &mdash; it&rsquo;s the line discovering a requirement the spec missed. The resolution updates the spec. The line learns through its escalations. This isn&rsquo;t as elegant as a single developer discovering and adapting in a flow state. It is more reliable.</p>
+
+    <p><strong>Context destruction is real.</strong> When a unit moves from Station 2 to Station 3, the design rationale &mdash; <em>why</em> this approach was chosen over alternatives, what tradeoffs were considered, what constraints shaped the design &mdash; exists only in the Station 2 designer&rsquo;s context window, which is about to be destroyed. If the artifacts don&rsquo;t carry this rationale forward, Station 5 reviewers are left evaluating <em>what</em> was built without understanding <em>why</em>, and Station 3 implementers may make choices that contradict the design intent without knowing it.</p>
+
+    <p>The line addresses this by requiring <strong>design rationale in the artifacts</strong>, not just specs and plans. Station 2&rsquo;s output includes a rationale section: decisions made, alternatives rejected, and constraints that drove the design. This flows downstream through the unit, giving every subsequent station the <em>why</em> alongside the <em>what</em>. It&rsquo;s more overhead than a single developer holding everything in their head. It&rsquo;s also more auditable and more resilient to the inevitable loss of context.</p>
+
+    <p><strong>The &ldquo;stateless worker&rdquo; framing is a simplification.</strong> Section 09 now addresses this directly, but it bears repeating here: Claude is not a blank executor. It arrives at every station with strong priors about how code should be written, what good design looks like, and how to be &ldquo;helpful.&rdquo; The work instruction doesn&rsquo;t program a blank machine &mdash; it steers a highly opinionated one. This means the work instruction is doing something more subtle than a manufacturing work instruction does. It&rsquo;s not just specifying the operation. It&rsquo;s specifying where the model&rsquo;s instincts should be trusted and where they should be overridden.</p>
+
+    <p><strong>The six-station pipeline is the heavyweight lane.</strong> For a new feature that touches multiple files, changes interfaces, and requires design review &mdash; yes, six stations. For a one-line bug fix, config change, or documentation update, six stations is absurd overhead. The line needs multiple routes: a standard lane (all six stations), a fast lane (skip design for small changes), and a spike lane (exploratory work that produces reports, not merges). Section 10 mentions specialized lines. This section makes them a first-class concept, not a future optimization.</p>
+
+    <p>None of this undermines the core thesis. The manufacturing principles &mdash; takt time, standard work, jidoka, kanban, poka-yoke, kaizen &mdash; are genuinely powerful when applied to agentic software development. The analogy works. It just doesn&rsquo;t work <em>everywhere</em>, and pretending it does would cost credibility with the practitioners who would benefit most from adopting it.</p>
+
+    <hr>
+
+    <blockquote class="pullquote">
+      <p><strong>The strongest version of the manufacturing analogy is the one that knows where it breaks. Software is not identical to manufacturing. The principles transfer. The assumptions don&rsquo;t always.</strong></p>
+    </blockquote>
+
+    <hr>
+
+    <h2>12 &mdash; What We Believe</h2>
 
     <p>We believe that agentic software development is real, and that it works, and that it is here to stay.</p>
 

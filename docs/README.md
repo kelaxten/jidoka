@@ -261,12 +261,24 @@ Claude Code instances pulling from the same implementation queue.
 Run multiple features through the line simultaneously. Kanban WIP limits prevent
 overload. Each unit flows independently.
 
-### Phase 4: Specialized Lines
+### Phase 4: Route Types (Built In)
 
-Create variant lines for different work types:
-- **Bug fix line:** Skip Station 2 (design) for simple fixes
-- **Refactor line:** Enhanced Station 5 (review) with architectural focus
-- **Feature line:** Full six-station pipeline
+The controller supports three built-in routes, selectable with `--route` at unit creation:
+
+| Route | Stations | Use For |
+|-------|----------|---------|
+| `standard` | 1 → 2 → 3 → 4 → 5 → 6 | Features, large changes (default) |
+| `fast` | 1 → 3 → 4 → 5 → 6 | Bug fixes, small changes, config (skips Design) |
+| `spike` | 1 → 3 | Exploration/discovery (produces report, not merge) |
+
+```bash
+node controller/assembly-line.js add "Fix null pointer in auth" --route fast
+node controller/assembly-line.js add "Explore WebSocket options" --route spike
+```
+
+The `advance` command automatically skips stations not in the unit's route. Spike
+units complete after Station 3 with a "SPIKE COMPLETE" message — their output is
+learning, not production code.
 
 ### Phase 5: Kaizen Loop
 
